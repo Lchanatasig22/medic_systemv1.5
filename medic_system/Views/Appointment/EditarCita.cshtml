@@ -17,7 +17,7 @@
 
     <div class="col-md-6">
         <label asp-for="HoradelacitaCita" class="form-label">Hora de la Cita</label>
-        <input asp-for="HoradelacitaCita" id="horaCita" class="form-control" type="time" required />
+        <input asp-for="HoradelacitaCita" id="horaCita" class="form-control" type="time" required readonly />
         <span asp-validation-for="HoradelacitaCita" class="text-danger"></span>
     </div>
 
@@ -131,7 +131,8 @@
         }
     }
 
-    function displayAvailableHours(hours) {
+    function displayAvailableHours(response) {
+        const hours = response.$values; // Accede al array de horas dentro de $values
         const container = document.getElementById('hoursContainer');
         container.innerHTML = '';
 
@@ -141,7 +142,7 @@
                 card.className = 'hour-card';
 
                 const img = document.createElement('img');
-                img.src = '/images/free-doctor-icon-313-thumb.png';
+                img.src = '../images/free-doctor-icon-313-thumb.png';
 
                 const time = document.createElement('div');
                 time.textContent = hour;
@@ -171,7 +172,6 @@
             container.innerHTML = '<p>No hay horas disponibles</p>';
         }
     }
-
     function validarCampos() {
         const fecha = document.getElementById('fechaCita').value;
         const hora = document.getElementById('horaCita').value;

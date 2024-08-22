@@ -49,10 +49,7 @@ builder.Services.AddSession(options =>
 });
 
 
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-});
+
 
 
 var app = builder.Build();

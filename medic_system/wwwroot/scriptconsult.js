@@ -188,6 +188,7 @@ function goToPreviousStep(stepNumber) {
 }
 
 // Función para enviar el formulario como JSON
+
 function submitFormAsJson() {
     const form = document.getElementById('consultationForm');
     const formData = new FormData(form);
@@ -311,7 +312,7 @@ function submitFormAsJson() {
     // Convertir el objeto a JSON y enviarlo
     const json = JSON.stringify(object);
 
-    fetch('/Consultation/CrearConsulta', {
+    fetch(consultaUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -320,20 +321,30 @@ function submitFormAsJson() {
     })
         .then(response => {
             if (response.ok) {
-                return response.json();
+                return response.json();  // Parsear respuesta JSON
             } else {
-                // Si la respuesta no es OK, intentar obtener texto plano para ver el error
                 return response.text().then(text => { throw new Error(text); });
             }
         })
         .then(data => {
-            const consultaId = data.Id;
-            // Redirigir a la página de edición
-            window.location.href = `/Consultation/EditarConsulta/${consultaId}`;
+            console.log("Respuesta del servidor:", data);  // Log para verificar la respuesta
+            const consultaId = parseInt(data.id, 10);  // Aquí se corrige a `data.id`
+            if (isNaN(consultaId) || consultaId <= 0) {
+                console.error(`Received invalid consultaId: ${consultaId} from server`);
+                throw new Error("El ID de la consulta no se recibió correctamente.");
+            }
+            const redirUrl = editarConsultaUrl.replace('__ID__', consultaId);
+            window.location.href = redirUrl;
         })
         .catch(error => {
             console.error('Error:', error);
             alert(`Ocurrió un error al crear la consulta: ${error.message}`);
         });
+
+
 }
+
+
+
+
 

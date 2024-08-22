@@ -43,7 +43,9 @@
 <div id="formHorasDisponibles" style="display: none;">
     <h2>Horas Disponibles</h2>
     <button type="button" class="btn btn-danger" onclick="cerrarFormularioHoras()">Cerrar</button>
-    <div id="hoursContainer" class="hours-grid"></div>
+    <div id="hoursContainer" class="hours-grid">
+      
+    </div>
 </div>
 
 <!-- Estilos y Scripts -->
@@ -153,7 +155,10 @@
         }
     }
 
-    function displayAvailableHours(hours) {
+  
+
+    function displayAvailableHours(response) {
+        const hours = response.$values; // Accede al array de horas dentro de $values
         const container = document.getElementById('hoursContainer');
         container.innerHTML = '';
 
@@ -193,6 +198,8 @@
             container.innerHTML = '<p>No hay horas disponibles</p>';
         }
     }
+
+
 
     function validarCampos() {
         const fecha = document.getElementById('fechaCita').value;

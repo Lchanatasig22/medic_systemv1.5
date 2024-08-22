@@ -115,7 +115,6 @@ namespace medic_system.Controllers
         }
 
 
-
         [HttpGet]
         public async Task<IActionResult> EditarConsulta(int id)
         {
@@ -126,6 +125,10 @@ namespace medic_system.Controllers
             {
                 return NotFound();
             }
+
+            _logger.LogInformation("Consulta obtenida: {@Consulta}", consulta);
+
+
 
             // Mapear el modelo `Consultum` a `ConsultaRequest`
             var model = new ConsultaRequest
@@ -167,35 +170,26 @@ namespace medic_system.Controllers
                 ActivoConsulta = consulta.ActivoConsulta ?? 0,
                 FechaactualConsulta = consulta.FechaactualConsulta ?? DateTime.Now,
 
-                // Los siguientes campos son strings JSON en `ConsultaRequest` y se deberán manejar de forma similar
+                // Serializar objetos complejos o listas a JSON
                 Medicamentos = consulta.ConsultaMedicamentoId != null
-    ? JsonConvert.SerializeObject(await _catalogService.ObtenerMedicamentosPorConsultaIdAsync(consulta.IdConsulta), new JsonSerializerSettings
-    {
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-    })
-    : null,
+                    ? JsonConvert.SerializeObject(await _catalogService.ObtenerMedicamentosPorConsultaIdAsync(consulta.IdConsulta),
+                        new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
+                    : "[]",
 
                 Laboratorios = consulta.ConsultaLaboratorioId != null
-    ? JsonConvert.SerializeObject(await _catalogService.ObtenerLaboratoriosPorConsultaIdAsync(consulta.IdConsulta), new JsonSerializerSettings
-    {
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-    })
-    : null,
+                    ? JsonConvert.SerializeObject(await _catalogService.ObtenerLaboratoriosPorConsultaIdAsync(consulta.IdConsulta),
+                        new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
+                    : "[]",
 
                 Imagenes = consulta.ConsultaImagenId != null
-    ? JsonConvert.SerializeObject(await _catalogService.ObtenerImagenesPorConsultaIdAsync(consulta.IdConsulta), new JsonSerializerSettings
-    {
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-    })
-    : null,
+                    ? JsonConvert.SerializeObject(await _catalogService.ObtenerImagenesPorConsultaIdAsync(consulta.IdConsulta),
+                        new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
+                    : "[]",
 
                 Diagnosticos = consulta.ConsultaDiagnosticoId != null
-    ? JsonConvert.SerializeObject(await _catalogService.ObtenerDiagnosticosPorConsultaIdAsync(consulta.IdConsulta), new JsonSerializerSettings
-    {
-        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-    })
-    : null,
-
+                    ? JsonConvert.SerializeObject(await _catalogService.ObtenerDiagnosticosPorConsultaIdAsync(consulta.IdConsulta),
+                        new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
+                    : "[]",
 
                 Cardiopatia = consulta.ConsultaAntecedentesFamiliares?.Cardiopatia,
                 ObserCardiopatia = consulta.ConsultaAntecedentesFamiliares?.ObserCardiopatia,
@@ -259,8 +253,6 @@ namespace medic_system.Controllers
                 ParentescoCatalogoEnfInfecciosa = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoEnfInfecciosa,
                 ParentescoCatalogoMalFormacion = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoMalFormacion,
                 ParentescoCatalogoOtro = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoOtro,
-
-                // Asignar valores adicionales si son necesarios
             };
 
             await CargarCatalogosEnViewBag();
@@ -511,8 +503,8 @@ namespace medic_system.Controllers
                 // Mostrar un mensaje de éxito en la siguiente solicitud
                 TempData["SuccessMessage"] = "Consulta generada exitosamente, revisela nuevamente.";
 
-                // Redirigir a la acción de edición con el ID de la nueva consulta
-                return RedirectToAction("EditarConsulta", new { id = newConsultaId });
+                // Devolver el ID de la nueva consulta en un formato JSON
+                return Ok(new { Id = newConsultaId });
             }
             catch (Exception ex)
             {
@@ -525,6 +517,8 @@ namespace medic_system.Controllers
                 });
             }
         }
+
+
 
 
         [HttpGet("{id}")]

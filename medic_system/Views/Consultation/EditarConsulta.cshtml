@@ -3,10 +3,11 @@
 @{
     ViewData["Title"] = "EditarConsulta";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var tiposDiagnosticoJson = JsonSerializer.Serialize(ViewBag.TiposDiagnostico);
-    var tiposMedicamentosJson = JsonSerializer.Serialize(ViewBag.TiposMedicamentos);
-    var tiposLaboratoriosJson = JsonSerializer.Serialize(ViewBag.TiposLaboratorios);
-    var tiposImagenJson = JsonSerializer.Serialize(ViewBag.TiposImagen);
+
+    var medicamentosJson = Model.Medicamentos ?? "null";
+    var laboratoriosJson = Model.Laboratorios ?? "null";
+    var imagenesJson = Model.Imagenes ?? "null";
+    var diagnosticosJson = Model.Diagnosticos ?? "null";
 }
 
 <head>
@@ -15,10 +16,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.3/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
     <script type="text/javascript">
-        var tiposDiagnosticoOptions = @Html.Raw(tiposDiagnosticoJson);
-        var tiposMedicamentosOptions = @Html.Raw(tiposMedicamentosJson);
-        var tiposLaboratoriosOptions = @Html.Raw(tiposLaboratoriosJson);
-        var tiposImagenOptions = @Html.Raw(tiposImagenJson);
+        var medicamentos = @Html.Raw(medicamentosJson);
+        var laboratorios = @Html.Raw(laboratoriosJson);
+        var imagenes = @Html.Raw(imagenesJson);
+        var diagnosticos = @Html.Raw(diagnosticosJson);
     </script>
     <style>
         .stepwizard-step p {
