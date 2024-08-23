@@ -156,6 +156,48 @@
     });
 });
 
+
+//Modificacion tabla
+
+//document.getElementById('agregarAlergiaCirugia').addEventListener('click', function () {
+//    var tipoAlergiaSelect = document.getElementById('tipoAlergiaSelect');
+//    var obserAlergias = document.getElementById('Obseralergias').value;
+//    var tipoCirugiaSelect = document.getElementById('tipoCirugiaSelect');
+//    var obserCirugias = document.getElementById('ObsercirugiasId').value;
+
+//    // Obtener el texto y valor seleccionado de las alergias y cirugías
+//    var alergiaText = tipoAlergiaSelect.options[tipoAlergiaSelect.selectedIndex].text;
+//    var alergiaValue = tipoAlergiaSelect.value;
+//    var cirugiaText = tipoCirugiaSelect.options[tipoCirugiaSelect.selectedIndex].text;
+//    var cirugiaValue = tipoCirugiaSelect.value;
+
+//    var tableBody = document.querySelector('#tablaAlergiasCirugias tbody');
+
+//    // Solo agregar si hay selección válida
+//    if (alergiaValue && obserAlergias) {
+//        var row = tableBody.insertRow();
+//        row.innerHTML = `<td>Alergia</td><td>${alergiaText}</td><td>${obserAlergias}</td><td><button type="button" class="btn btn-danger btn-sm eliminarFila">Eliminar</button></td>`;
+//    }
+
+//    if (cirugiaValue && obserCirugias) {
+//        var row = tableBody.insertRow();
+//        row.innerHTML = `<td>Cirugía</td><td>${cirugiaText}</td><td>${obserCirugias}</td><td><button type="button" class="btn btn-danger btn-sm eliminarFila">Eliminar</button></td>`;
+//    }
+
+//    // Limpiar campos después de agregar
+//    tipoAlergiaSelect.selectedIndex = 0;
+//    document.getElementById('Obseralergias').value = '';
+//    tipoCirugiaSelect.selectedIndex = 0;
+//    document.getElementById('ObsercirugiasId').value = '';
+//});
+
+document.getElementById('tablaAlergiasCirugias').addEventListener('click', function (event) {
+    if (event.target.classList.contains('eliminarFila')) {
+        var fila = event.target.closest('tr');
+        fila.remove();
+    }
+});
+
 function goToNextStep(stepNumber, event) {
     event = event || window.event;
     var curStep = $(event.target).closest(".setup-content"),
@@ -247,7 +289,7 @@ function submitFormAsJson() {
             });
         }
     });
-    object["Diagnosticos"] = JSON.stringify(diagnosticos.length > 0 ? diagnosticos : []);
+    object["Diagnosticos"] = diagnosticos.length > 0 ? diagnosticos : [];
 
     // Capturar los medicamentos
     const medicamentos = [];
@@ -266,7 +308,7 @@ function submitFormAsJson() {
             });
         }
     });
-    object["Medicamentos"] = JSON.stringify(medicamentos.length > 0 ? medicamentos : []);
+    object["Medicamentos"] = medicamentos.length > 0 ? medicamentos : [];
 
     // Capturar las imágenes
     const imagenes = [];
@@ -285,7 +327,7 @@ function submitFormAsJson() {
             });
         }
     });
-    object["Imagenes"] = JSON.stringify(imagenes.length > 0 ? imagenes : []);
+    object["Imagenes"] = imagenes.length > 0 ? imagenes : [];
 
     // Capturar los laboratorios
     const laboratorios = [];
@@ -304,7 +346,7 @@ function submitFormAsJson() {
             });
         }
     });
-    object["Laboratorios"] = JSON.stringify(laboratorios.length > 0 ? laboratorios : []);
+    object["Laboratorios"] = laboratorios.length > 0 ? laboratorios : [];
 
     // Debugging: Verificar el contenido del objeto antes de enviarlo
     console.log("Formulario capturado:", object);
@@ -327,22 +369,48 @@ function submitFormAsJson() {
             }
         })
         .then(data => {
-            console.log("Respuesta del servidor:", data);  // Log para verificar la respuesta
-            const consultaId = parseInt(data.id, 10);  // Aquí se corrige a `data.id`
+            console.log("Respuesta completa del servidor:", data);
+
+            const consultaId = parseInt(data.id, 10);
             if (isNaN(consultaId) || consultaId <= 0) {
                 console.error(`Received invalid consultaId: ${consultaId} from server`);
                 throw new Error("El ID de la consulta no se recibió correctamente.");
             }
-            const redirUrl = editarConsultaUrl.replace('__ID__', consultaId);
+
+            // Usando la URL generada por @Url.Action
+            var getConsultId = '@Url.Action("GetConsultaById", "Consultatio")';
+            const consultaDetailsUrl = `${getConsultId}/${consultaId}`;
+
+            // Nueva solicitud para obtener los detalles de la consulta
+            return fetch(consultaDetailsUrl, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();  // Parsear respuesta JSON con los detalles de la consulta
+            } else {
+                return response.text().then(text => { throw new Error(text); });
+            }
+        })
+        .then(consulta => {
+            // Mostrar los detalles completos de la consulta en la consola
+            console.log("Detalles completos de la consulta:", consulta);
+
+            // Si quieres redirigir a la página de edición o mostrar los detalles, puedes hacerlo aquí
+            const redirUrl = editarConsultaUrl.replace('__ID__', consulta.ConsultaId);
             window.location.href = redirUrl;
         })
         .catch(error => {
             console.error('Error:', error);
             alert(`Ocurrió un error al crear la consulta: ${error.message}`);
         });
-
-
 }
+
+
 
 
 

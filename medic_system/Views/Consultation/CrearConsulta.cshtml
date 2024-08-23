@@ -529,14 +529,17 @@
                         </table>
                     </div>
                 </div>
-
+                <div id="camp">
+                    En caso de no tener acompañante seleccionar en parentesco SN !
+                </div>
                 <div class="col-sm-3">
+                 
                     <label for="nombrePariente">Acompañante</label>
                     <input type="text" class="form-control" id="acompañante" asp-for="NombreparienteConsulta" placeholder="Nombre(s),Apellido(s) 150 caracteres">
                 </div>
                 <div class="col-sm-3">
                     <label for="esdonante"> Parentesco</label>
-                    <select class="form-select" asp-for="TipoparienteConsulta" id="tipoParienteSelect" required>
+                    <select class="form-select" asp-for="TipoparienteConsulta" id="tipoParienteSelect">
                         <option value="">Seleccione...</option>
                         @if (ViewBag.TiposPariente != null)
                         {
@@ -610,6 +613,65 @@
                     </div>
                 </div>
 
+
+                <!--Modificacion con tablas-->
+
+              @*   <div class="col-sm-6">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <span><i class="fas fa-allergies"></i> Alergias</span>
+                            <select class="form-select select2" asp-for="AlergiasConsultaId" id="tipoAlergiaSelect">
+                                <option value="">Seleccione...</option>
+                                @if (ViewBag.TiposAlergias != null)
+                                {
+                                    @foreach (var tipoAlergia in ViewBag.TiposAlergias)
+                                    {
+                                        <option value="@tipoAlergia.IdCatalogo">@tipoAlergia.DescripcionCatalogo</option>
+                                    }
+                                }
+                            </select>
+                            <label for="observacionAlergias">Observación de Alergias*</label>
+                            <input type="text" class="form-control" asp-for="Obseralergias" id="Obseralergias" placeholder="Motivo de su consulta 150 caracteres" required>
+                        </div>
+                        <div class="col-6">
+                            <span><i class="fas fa-syringe"></i> Cirugías</span>
+                            <select class="form-select select2" asp-for="CirugiasConsultaId" id="tipoCirugiaSelect">
+                                <option value="">Seleccione...</option>
+                                @if (ViewBag.TiposCirugias != null)
+                                {
+                                    @foreach (var tipoCirugia in ViewBag.TiposCirugias)
+                                    {
+                                        <option value="@tipoCirugia.IdCatalogo">@tipoCirugia.DescripcionCatalogo</option>
+                                    }
+                                }
+                            </select>
+                            <label for="observacionCirugias">Observación de Cirugías*</label>
+                            <input type="text" class="form-control" asp-for="ObsercirugiasId" id="ObsercirugiasId" placeholder="Motivo de su consulta 150 caracteres" required>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <button type="button" class="btn btn-primary" id="agregarAlergiaCirugia">Agregar Alergia/Cirugía</button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <table class="table" id="tablaAlergiasCirugias">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Descripción</th>
+                                        <th>Observación</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Las filas serán añadidas dinámicamente aquí -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div> *@
 
                 <div class="hr-text">
                     <hr>
@@ -1769,6 +1831,8 @@
 <script>
     var consultaUrl = '@Url.Action("CrearConsulta", "Consultation")';
     var editarConsultaUrl = '@Url.Action("EditarConsulta", "Consultation", new { id = "__ID__" })';
+
+
 </script>
 
 <script>

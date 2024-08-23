@@ -118,148 +118,26 @@ namespace medic_system.Controllers
         [HttpGet]
         public async Task<IActionResult> EditarConsulta(int id)
         {
-            // Obtener la consulta existente del servicio
-            var consulta = await _consultationService.GetConsultaByIdAsync(id);
+            // Reutiliza el método GetConsultaById para obtener el modelo mapeado
+            var result = await GetConsultaById(id);
 
-            if (consulta == null)
+            if (result is NotFoundResult)
             {
                 return NotFound();
             }
 
-            _logger.LogInformation("Consulta obtenida: {@Consulta}", consulta);
-
-
-
-            // Mapear el modelo `Consultum` a `ConsultaRequest`
-            var model = new ConsultaRequest
+            if (result is ObjectResult objectResult && objectResult.Value is ConsultaRequest model)
             {
-                ConsultaId = consulta.IdConsulta,
-                FechacreacionConsulta = consulta.FechacreacionConsulta ?? DateTime.Now,
-                UsuariocreacionConsulta = consulta.UsuariocreacionConsulta,
-                HistorialConsulta = consulta.HistorialConsulta,
-                SecuencialConsulta = consulta.SecuencialConsulta,
-                PacienteConsultaP = consulta.PacienteConsultaP ?? 0,
-                MotivoConsulta = consulta.MotivoConsulta,
-                EnfermedadConsulta = consulta.EnfermedadConsulta,
-                NombreparienteConsulta = consulta.NombreparienteConsulta,
-                SignosalarmaConsulta = consulta.SignosalarmaConsulta,
-                Reconofarmacologicas = consulta.Reconofarmacologicas,
-                TipoparienteConsulta = consulta.TipoparienteConsulta ?? 0,
-                TelefonoConsulta = consulta.TelefonoConsulta,
-                TemperaturaConsulta = consulta.TemperaturaConsulta,
-                FrecuenciarespiratoriaConsulta = consulta.FrecuenciarespiratoriaConsulta,
-                PresionarterialsistolicaConsulta = consulta.PresionarterialsistolicaConsulta,
-                PresionarterialdiastolicaConsulta = consulta.PresionarterialdiastolicaConsulta,
-                PulsoConsulta = consulta.PulsoConsulta,
-                PesoConsulta = consulta.PesoConsulta,
-                TallaConsulta = consulta.TallaConsulta,
-                PlantratamientoConsulta = consulta.PlantratamientoConsulta,
-                ObservacionConsulta = consulta.ObservacionConsulta,
-                AntecedentespersonalesConsulta = consulta.AntecedentespersonalesConsulta,
-                AlergiasConsultaId = consulta.AlergiasConsultaId ?? 0,
-                Obseralergias = consulta.Obseralergias,
-                CirugiasConsultaId = consulta.CirugiasConsultaId ?? 0,
-                ObsercirugiasId = consulta.ObsercirugiasId,
-                DiasincapacidadConsulta = consulta.DiasincapacidadConsulta ?? 0,
-                MedicoConsultaD = consulta.MedicoConsultaD ?? 0,
-                EspecialidadId = consulta.EspecialidadId ?? 0,
-                EstadoConsultaC = consulta.EstadoConsultaC ?? 0,
-                TipoConsultaC = consulta.TipoConsultaC ?? 0,
-                NotasevolucionConsulta = consulta.NotasevolucionConsulta,
-                ConsultaprincipalConsulta = consulta.ConsultaprincipalConsulta,
-                ActivoConsulta = consulta.ActivoConsulta ?? 0,
-                FechaactualConsulta = consulta.FechaactualConsulta ?? DateTime.Now,
+                // Cargar los catálogos necesarios en el ViewBag
+                await CargarCatalogosEnViewBag();
 
-                // Serializar objetos complejos o listas a JSON
-                Medicamentos = consulta.ConsultaMedicamentoId != null
-                    ? JsonConvert.SerializeObject(await _catalogService.ObtenerMedicamentosPorConsultaIdAsync(consulta.IdConsulta),
-                        new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
-                    : "[]",
+                // Devuelve la vista con el modelo mapeado
+                return View(model);
+            }
 
-                Laboratorios = consulta.ConsultaLaboratorioId != null
-                    ? JsonConvert.SerializeObject(await _catalogService.ObtenerLaboratoriosPorConsultaIdAsync(consulta.IdConsulta),
-                        new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
-                    : "[]",
-
-                Imagenes = consulta.ConsultaImagenId != null
-                    ? JsonConvert.SerializeObject(await _catalogService.ObtenerImagenesPorConsultaIdAsync(consulta.IdConsulta),
-                        new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
-                    : "[]",
-
-                Diagnosticos = consulta.ConsultaDiagnosticoId != null
-                    ? JsonConvert.SerializeObject(await _catalogService.ObtenerDiagnosticosPorConsultaIdAsync(consulta.IdConsulta),
-                        new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })
-                    : "[]",
-
-                Cardiopatia = consulta.ConsultaAntecedentesFamiliares?.Cardiopatia,
-                ObserCardiopatia = consulta.ConsultaAntecedentesFamiliares?.ObserCardiopatia,
-                Diabetes = consulta.ConsultaAntecedentesFamiliares?.Diabetes,
-                ObserDiabetes = consulta.ConsultaAntecedentesFamiliares?.ObserDiabetes,
-                EnfCardiovascular = consulta.ConsultaAntecedentesFamiliares?.EnfCardiovascular,
-                ObserEnfCardiovascular = consulta.ConsultaAntecedentesFamiliares?.ObserEnfCardiovascular,
-                Hipertension = consulta.ConsultaAntecedentesFamiliares?.Hipertension,
-                ObserHipertension = consulta.ConsultaAntecedentesFamiliares?.ObserHipertension,
-                Cancer = consulta.ConsultaAntecedentesFamiliares?.Cancer,
-                ObserCancer = consulta.ConsultaAntecedentesFamiliares?.ObserCancer,
-                Tuberculosis = consulta.ConsultaAntecedentesFamiliares?.Tuberculosis,
-                ObserTuberculosis = consulta.ConsultaAntecedentesFamiliares?.ObserTuberculosis,
-                EnfMental = consulta.ConsultaAntecedentesFamiliares?.EnfMental,
-                ObserEnfMental = consulta.ConsultaAntecedentesFamiliares?.ObserEnfMental,
-                EnfInfecciosa = consulta.ConsultaAntecedentesFamiliares?.EnfInfecciosa,
-                ObserEnfInfecciosa = consulta.ConsultaAntecedentesFamiliares?.ObserEnfInfecciosa,
-                MalFormacion = consulta.ConsultaAntecedentesFamiliares?.MalFormacion,
-                ObserMalFormacion = consulta.ConsultaAntecedentesFamiliares?.ObserMalFormacion,
-                Otro = consulta.ConsultaAntecedentesFamiliares?.Otro,
-                ObserOtro = consulta.ConsultaAntecedentesFamiliares?.ObserOtro,
-                OrgSentidos = consulta.ConsultaOrganosSistemas?.OrgSentidos,
-                ObserOrgSentidos = consulta.ConsultaOrganosSistemas?.ObserOrgSentidos,
-                Respiratorio = consulta.ConsultaOrganosSistemas?.Respiratorio,
-                ObserRespiratorio = consulta.ConsultaOrganosSistemas?.ObserRespiratorio,
-                CardioVascular = consulta.ConsultaOrganosSistemas?.CardioVascular,
-                ObserCardioVascular = consulta.ConsultaOrganosSistemas?.ObserCardioVascular,
-                Digestivo = consulta.ConsultaOrganosSistemas?.Digestivo,
-                ObserDigestivo = consulta.ConsultaOrganosSistemas?.ObserDigestivo,
-                Genital = consulta.ConsultaOrganosSistemas?.Genital,
-                ObserGenital = consulta.ConsultaOrganosSistemas?.ObserGenital,
-                Urinario = consulta.ConsultaOrganosSistemas?.Urinario,
-                ObserUrinario = consulta.ConsultaOrganosSistemas?.ObserUrinario,
-                MEsqueletico = consulta.ConsultaOrganosSistemas?.MEsqueletico,
-                ObserMEsqueletico = consulta.ConsultaOrganosSistemas?.ObserMEsqueletico,
-                Endocrino = consulta.ConsultaOrganosSistemas?.Endocrino,
-                ObserEndocrino = consulta.ConsultaOrganosSistemas?.ObserEndocrino,
-                Linfatico = consulta.ConsultaOrganosSistemas?.Linfatico,
-                ObserLinfatico = consulta.ConsultaOrganosSistemas?.ObserLinfatico,
-                Nervioso = consulta.ConsultaOrganosSistemas?.Nervioso,
-                ObserNervioso = consulta.ConsultaOrganosSistemas?.ObserNervioso,
-                Cabeza = consulta.ConsultaExamenFisico?.Cabeza,
-                ObserCabeza = consulta.ConsultaExamenFisico?.ObserCabeza,
-                Cuello = consulta.ConsultaExamenFisico?.Cuello,
-                ObserCuello = consulta.ConsultaExamenFisico?.ObserCuello,
-                Torax = consulta.ConsultaExamenFisico?.Torax,
-                ObserTorax = consulta.ConsultaExamenFisico?.ObserTorax,
-                Abdomen = consulta.ConsultaExamenFisico?.Abdomen,
-                ObserAbdomen = consulta.ConsultaExamenFisico?.ObserAbdomen,
-                Pelvis = consulta.ConsultaExamenFisico?.Pelvis,
-                ObserPelvis = consulta.ConsultaExamenFisico?.ObserPelvis,
-                Extremidades = consulta.ConsultaExamenFisico?.Extremidades,
-                ObserExtremidades = consulta.ConsultaExamenFisico?.ObserExtremidades,
-                ParentescoCatalogoCardiopatia = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoCardiopatia,
-                ParentescoCatalogoDiabetes = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoDiabetes,
-                ParentescoCatalogoEnfCardiovascular = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoEnfCardiovascular,
-                ParentescoCatalogoHipertension = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoHipertension,
-                ParentescoCatalogoCancer = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoCancer,
-                ParentescoCatalogoTuberculosis = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoTuberculosis,
-                ParentescoCatalogoEnfMental = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoEnfMental,
-                ParentescoCatalogoEnfInfecciosa = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoEnfInfecciosa,
-                ParentescoCatalogoMalFormacion = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoMalFormacion,
-                ParentescoCatalogoOtro = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoOtro,
-            };
-
-            await CargarCatalogosEnViewBag();
-
-            return View(model);
+            // Si ocurrió un error, devuelve el resultado tal como lo manejó GetConsultaById
+            return result;
         }
-
 
         private async Task CargarCatalogosEnViewBag()
         {
@@ -526,6 +404,7 @@ namespace medic_system.Controllers
         {
             try
             {
+                // Obtener la consulta desde el servicio
                 var consulta = await _consultationService.GetConsultaByIdAsync(id);
 
                 if (consulta == null)
@@ -533,16 +412,130 @@ namespace medic_system.Controllers
                     return NotFound();
                 }
 
-                return Ok(consulta);
+                // Mapear Consultum a ConsultaRequest
+                var model = new ConsultaRequest
+                {
+                    ConsultaId = consulta.IdConsulta,
+                    FechacreacionConsulta = consulta.FechacreacionConsulta ?? DateTime.Now,
+                    UsuariocreacionConsulta = consulta.UsuariocreacionConsulta,
+                    HistorialConsulta = consulta.HistorialConsulta,
+                    SecuencialConsulta = consulta.SecuencialConsulta,
+                    PacienteConsultaP = consulta.PacienteConsultaP ?? 0,
+                    MotivoConsulta = consulta.MotivoConsulta,
+                    EnfermedadConsulta = consulta.EnfermedadConsulta,
+                    NombreparienteConsulta = consulta.NombreparienteConsulta,
+                    SignosalarmaConsulta = consulta.SignosalarmaConsulta,
+                    Reconofarmacologicas = consulta.Reconofarmacologicas,
+                    TipoparienteConsulta = consulta.TipoparienteConsulta ?? 0,
+                    TelefonoConsulta = consulta.TelefonoConsulta,
+                    TemperaturaConsulta = consulta.TemperaturaConsulta,
+                    FrecuenciarespiratoriaConsulta = consulta.FrecuenciarespiratoriaConsulta,
+                    PresionarterialsistolicaConsulta = consulta.PresionarterialsistolicaConsulta,
+                    PresionarterialdiastolicaConsulta = consulta.PresionarterialdiastolicaConsulta,
+                    PulsoConsulta = consulta.PulsoConsulta,
+                    PesoConsulta = consulta.PesoConsulta,
+                    TallaConsulta = consulta.TallaConsulta,
+                    PlantratamientoConsulta = consulta.PlantratamientoConsulta,
+                    ObservacionConsulta = consulta.ObservacionConsulta,
+                    AntecedentespersonalesConsulta = consulta.AntecedentespersonalesConsulta,
+                    AlergiasConsultaId = consulta.AlergiasConsultaId ?? 0,
+                    Obseralergias = consulta.Obseralergias,
+                    CirugiasConsultaId = consulta.CirugiasConsultaId ?? 0,
+                    ObsercirugiasId = consulta.ObsercirugiasId,
+                    DiasincapacidadConsulta = consulta.DiasincapacidadConsulta ?? 0,
+                    MedicoConsultaD = consulta.MedicoConsultaD ?? 0,
+                    EspecialidadId = consulta.EspecialidadId ?? 0,
+                    EstadoConsultaC = consulta.EstadoConsultaC ?? 0,
+                    TipoConsultaC = consulta.TipoConsultaC ?? 0,
+                    NotasevolucionConsulta = consulta.NotasevolucionConsulta,
+                    ConsultaprincipalConsulta = consulta.ConsultaprincipalConsulta,
+                    ActivoConsulta = consulta.ActivoConsulta ?? 0,
+                    FechaactualConsulta = consulta.FechaactualConsulta ?? DateTime.Now,
+
+                    // Mapeo de los campos relacionados a objetos complejos
+                    Medicamentos = JsonConvert.SerializeObject(consulta.ConsultaMedicamento, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }),
+                    Laboratorios = JsonConvert.SerializeObject(consulta.ConsultaLaboratorio, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }),
+                    Imagenes = JsonConvert.SerializeObject(consulta.ConsultaImagen, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }),
+                    Diagnosticos = JsonConvert.SerializeObject(consulta.ConsultaDiagnostico, new JsonSerializerSettings { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }),
+
+                    // Mapeo de campos booleanos y relacionados con antecedentes familiares
+                    Cardiopatia = consulta.ConsultaAntecedentesFamiliares?.Cardiopatia,
+                    ObserCardiopatia = consulta.ConsultaAntecedentesFamiliares?.ObserCardiopatia,
+                    Diabetes = consulta.ConsultaAntecedentesFamiliares?.Diabetes,
+                    ObserDiabetes = consulta.ConsultaAntecedentesFamiliares?.ObserDiabetes,
+                    EnfCardiovascular = consulta.ConsultaAntecedentesFamiliares?.EnfCardiovascular,
+                    ObserEnfCardiovascular = consulta.ConsultaAntecedentesFamiliares?.ObserEnfCardiovascular,
+                    Hipertension = consulta.ConsultaAntecedentesFamiliares?.Hipertension,
+                    ObserHipertension = consulta.ConsultaAntecedentesFamiliares?.ObserHipertension,
+                    Cancer = consulta.ConsultaAntecedentesFamiliares?.Cancer,
+                    ObserCancer = consulta.ConsultaAntecedentesFamiliares?.ObserCancer,
+                    Tuberculosis = consulta.ConsultaAntecedentesFamiliares?.Tuberculosis,
+                    ObserTuberculosis = consulta.ConsultaAntecedentesFamiliares?.ObserTuberculosis,
+                    EnfMental = consulta.ConsultaAntecedentesFamiliares?.EnfMental,
+                    ObserEnfMental = consulta.ConsultaAntecedentesFamiliares?.ObserEnfMental,
+                    EnfInfecciosa = consulta.ConsultaAntecedentesFamiliares?.EnfInfecciosa,
+                    ObserEnfInfecciosa = consulta.ConsultaAntecedentesFamiliares?.ObserEnfInfecciosa,
+                    MalFormacion = consulta.ConsultaAntecedentesFamiliares?.MalFormacion,
+                    ObserMalFormacion = consulta.ConsultaAntecedentesFamiliares?.ObserMalFormacion,
+                    Otro = consulta.ConsultaAntecedentesFamiliares?.Otro,
+                    ObserOtro = consulta.ConsultaAntecedentesFamiliares?.ObserOtro,
+                    OrgSentidos = consulta.ConsultaOrganosSistemas?.OrgSentidos,
+                    ObserOrgSentidos = consulta.ConsultaOrganosSistemas?.ObserOrgSentidos,
+                    Respiratorio = consulta.ConsultaOrganosSistemas?.Respiratorio,
+                    ObserRespiratorio = consulta.ConsultaOrganosSistemas?.ObserRespiratorio,
+                    CardioVascular = consulta.ConsultaOrganosSistemas?.CardioVascular,
+                    ObserCardioVascular = consulta.ConsultaOrganosSistemas?.ObserCardioVascular,
+                    Digestivo = consulta.ConsultaOrganosSistemas?.Digestivo,
+                    ObserDigestivo = consulta.ConsultaOrganosSistemas?.ObserDigestivo,
+                    Genital = consulta.ConsultaOrganosSistemas?.Genital,
+                    ObserGenital = consulta.ConsultaOrganosSistemas?.ObserGenital,
+                    Urinario = consulta.ConsultaOrganosSistemas?.Urinario,
+                    ObserUrinario = consulta.ConsultaOrganosSistemas?.ObserUrinario,
+                    MEsqueletico = consulta.ConsultaOrganosSistemas?.MEsqueletico,
+                    ObserMEsqueletico = consulta.ConsultaOrganosSistemas?.ObserMEsqueletico,
+                    Endocrino = consulta.ConsultaOrganosSistemas?.Endocrino,
+                    ObserEndocrino = consulta.ConsultaOrganosSistemas?.ObserEndocrino,
+                    Linfatico = consulta.ConsultaOrganosSistemas?.Linfatico,
+                    ObserLinfatico = consulta.ConsultaOrganosSistemas?.ObserLinfatico,
+                    Nervioso = consulta.ConsultaOrganosSistemas?.Nervioso,
+                    ObserNervioso = consulta.ConsultaOrganosSistemas?.ObserNervioso,
+                    Cabeza = consulta.ConsultaExamenFisico?.Cabeza,
+                    ObserCabeza = consulta.ConsultaExamenFisico?.ObserCabeza,
+                    Cuello = consulta.ConsultaExamenFisico?.Cuello,
+                    ObserCuello = consulta.ConsultaExamenFisico?.ObserCuello,
+                    Torax = consulta.ConsultaExamenFisico?.Torax,
+                    ObserTorax = consulta.ConsultaExamenFisico?.ObserTorax,
+                    Abdomen = consulta.ConsultaExamenFisico?.Abdomen,
+                    ObserAbdomen = consulta.ConsultaExamenFisico?.ObserAbdomen,
+                    Pelvis = consulta.ConsultaExamenFisico?.Pelvis,
+                    ObserPelvis = consulta.ConsultaExamenFisico?.ObserPelvis,
+                    Extremidades = consulta.ConsultaExamenFisico?.Extremidades,
+                    ObserExtremidades = consulta.ConsultaExamenFisico?.ObserExtremidades,
+                    ParentescoCatalogoCardiopatia = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoCardiopatia ?? 0,
+                    ParentescoCatalogoDiabetes = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoDiabetes ?? 0,
+                    ParentescoCatalogoEnfCardiovascular = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoEnfCardiovascular ?? 0,
+                    ParentescoCatalogoHipertension = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoHipertension ?? 0,
+                    ParentescoCatalogoCancer = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoCancer ?? 0,
+                    ParentescoCatalogoTuberculosis = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoTuberculosis ?? 0,
+                    ParentescoCatalogoEnfMental = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoEnfMental ?? 0,
+                    ParentescoCatalogoEnfInfecciosa = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoEnfInfecciosa ?? 0,
+                    ParentescoCatalogoMalFormacion = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoMalFormacion ?? 0,
+                    ParentescoCatalogoOtro = consulta.ConsultaAntecedentesFamiliares?.ParentescoCatalogoOtro ?? 0,
+                };
+
+                // Devolver el modelo mapeado
+                return Ok(model);
             }
             catch (Exception ex)
             {
                 // Registro del error para diagnóstico
-                // _logger.LogError(ex, "Error al obtener la consulta.");
+                _logger.LogError(ex, "Error al obtener la consulta.");
 
                 return StatusCode(500, "Se produjo un error al procesar la solicitud.");
             }
         }
+
+
 
 
 
