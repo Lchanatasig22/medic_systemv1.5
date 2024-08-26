@@ -529,9 +529,9 @@
                         </table>
                     </div>
                 </div>
-                <div id="camp">
+      @*           <div id="camp">
                     En caso de no tener acompañante seleccionar en parentesco SN !
-                </div>
+                </div> *@
                 <div class="col-sm-3">
                  
                     <label for="nombrePariente">Acompañante</label>
@@ -540,7 +540,7 @@
                 <div class="col-sm-3">
                     <label for="esdonante"> Parentesco</label>
                     <select class="form-select" asp-for="TipoparienteConsulta" id="tipoParienteSelect">
-                        <option value="">Seleccione...</option>
+                        <option value="37">Seleccione...</option>
                         @if (ViewBag.TiposPariente != null)
                         {
                             @foreach (var tiposPariente in ViewBag.TiposPariente)
@@ -576,7 +576,7 @@
                         <div class="col-6">
                             <span><i class="fas fa-allergies"></i> Alergias</span>
                             <select class="form-select select2" asp-for="AlergiasConsultaId" id="tipoAlergiaSelect">
-                                <option value="">Seleccione...</option>
+                                <option value="37">Seleccione...</option>
                                 @if (ViewBag.TiposAlergias != null)
                                 {
                                     @foreach (var tipoAlergia in ViewBag.TiposAlergias)
@@ -588,13 +588,13 @@
 
 
   
-                                <label for="observacionAlergias">Observación de Alergias*</label>
-                                <input type="text" class="form-control" asp-for="Obseralergias" id="Obseralergias" placeholder="Motivo de su consulta 150 caracteres" required>
+                                <label for="observacionAlergias">Observación de Alergias</label>
+                                <input type="text" class="form-control" asp-for="Obseralergias" id="Obseralergias" placeholder="Motivo de su consulta 150 caracteres">
                          </div>
                         <div class="col-6">
                             <span><i class="fas fa-syringe"></i> Cirugías</span>
                             <select class="form-select select2" asp-for="CirugiasConsultaId" id="tipoCirugiaSelect">
-                                <option value="">Seleccione...</option>
+                                <option value="37">Seleccione...</option>
                                 @if (ViewBag.TiposCirugias != null)
                                 {
                                     @foreach (var tipoCirugia in ViewBag.TiposCirugias)
@@ -604,8 +604,8 @@
                                 }
                             </select>
                             
-                                <label for="observacionCirugias">Observación de Cirugias*</label>
-                                <input type="text" class="form-control" asp-for="ObsercirugiasId " id="ObsercirugiasId" placeholder="Motivo de su consulta 150 caracteres" required>
+                                <label for="observacionCirugias">Observación de Cirugias</label>
+                                <input type="text" class="form-control" asp-for="ObsercirugiasId " id="ObsercirugiasId" placeholder="Motivo de su consulta 150 caracteres">
                             
                         </div>
                    
@@ -1673,7 +1673,7 @@
                                 <div class="form-row">
                                     <div class="form-group ">
                                         <label for="consulta-diagnostico-dias-incapacidad">Recomendaciones no farmacologicas</label>
-                                        <textarea id="reconofarmacologicas" maxlength="8000" asp-for="Reconofarmacologicas" min="0" name="Reconofarmacologicas" type="text" class="form-control"></textarea>
+                                        <textarea id="reconofarmacologicas" maxlength="8000" asp-for="Reconofarmacologicas"  name="Reconofarmacologicas" type="text" class="form-control"></textarea>
                                     </div>
                                 </div>
                             </div>

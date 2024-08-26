@@ -270,6 +270,11 @@ function submitFormAsJson() {
         } else {
             object[key] = value;
         }
+
+        // Verificación de campos null
+        if (object[key] === null) {
+            console.log(`Campo ${key} está en null.`);
+        }
     });
 
     // Capturar los diagnósticos
@@ -287,6 +292,11 @@ function submitFormAsJson() {
                 presuntivo_diagnosticos: presuntivo,
                 definitivo_diagnosticos: definitivo
             });
+
+            // Verificación de campos null en diagnósticos
+            if (diagnosticoId === null) {
+                console.log('Campo diagnostico_id está en null.');
+            }
         }
     });
     object["Diagnosticos"] = diagnosticos.length > 0 ? diagnosticos : [];
@@ -306,6 +316,14 @@ function submitFormAsJson() {
                 dosis_medicamento: cantidad,
                 observacion_medicamento: observacion
             });
+
+            // Verificación de campos null en medicamentos
+            if (medicamentoId === null) {
+                console.log('Campo medicamento_id está en null.');
+            }
+            if (cantidad === null) {
+                console.log('Campo cantidad en medicamentos está en null.');
+            }
         }
     });
     object["Medicamentos"] = medicamentos.length > 0 ? medicamentos : [];
@@ -325,6 +343,14 @@ function submitFormAsJson() {
                 cantidad_imagen: cantidad,
                 observacion_imagen: observacion
             });
+
+            // Verificación de campos null en imágenes
+            if (imagenId === null) {
+                console.log('Campo imagen_id está en null.');
+            }
+            if (cantidad === null) {
+                console.log('Campo cantidad en imágenes está en null.');
+            }
         }
     });
     object["Imagenes"] = imagenes.length > 0 ? imagenes : [];
@@ -344,6 +370,14 @@ function submitFormAsJson() {
                 cantidad_laboratorio: cantidad,
                 observacion_laboratorio: observacion
             });
+
+            // Verificación de campos null en laboratorios
+            if (laboratorioId === null) {
+                console.log('Campo laboratorio_id está en null.');
+            }
+            if (cantidad === null) {
+                console.log('Campo cantidad en laboratorios está en null.');
+            }
         }
     });
     object["Laboratorios"] = laboratorios.length > 0 ? laboratorios : [];
@@ -353,6 +387,7 @@ function submitFormAsJson() {
 
     // Convertir el objeto a JSON y enviarlo
     const json = JSON.stringify(object);
+    console.log("JSON enviado:", json); // Verificación adicional antes de enviar
 
     fetch(consultaUrl, {
         method: 'POST',
