@@ -246,6 +246,7 @@ namespace medic_system.Controllers
                 {
                     Message = "Invalid request. The request body is null."
                 });
+
             }
 
             // Asignar valores predeterminados o valores de la sesión

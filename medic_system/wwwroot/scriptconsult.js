@@ -233,10 +233,15 @@ function goToPreviousStep(stepNumber) {
 
 function submitFormAsJson() {
     const form = document.getElementById('consultationForm');
-    const formData = new FormData(form);
-    const object = {};
+    if (!form) {
+        console.error("Formulario no encontrado.");
+        return;
+    }
 
-    // Mapeo de los campos que deben ser números
+    const formData = new FormData(form);
+    const data = {};
+
+    // Campos que deben ser convertidos a números enteros
     const intFields = [
         "PacienteConsultaP", "TipoparienteConsulta", "AlergiasConsultaId",
         "CirugiasConsultaId", "DiasincapacidadConsulta", "MedicoConsultaD",
@@ -245,12 +250,10 @@ function submitFormAsJson() {
         "ParentescoCatalogoEnfCardiovascular", "ParentescoCatalogoHipertension",
         "ParentescoCatalogoCancer", "ParentescoCatalogoTuberculosis",
         "ParentescoCatalogoEnfMental", "ParentescoCatalogoEnfInfecciosa",
-        "ParentescoCatalogoMalFormacion", "ParentescoCatalogoOtro",
-        "Diagnosticos.DiagnosticoId", "Laboratorios.LaboratorioId", "Imagenes.ImagenId",
-        "Medicamentos.MedicamentoId", "Imagenes.Cantidad", "Laboratorios.Cantidad"
+        "ParentescoCatalogoMalFormacion", "ParentescoCatalogoOtro"
     ];
 
-    // Mapeo de los campos que deben ser booleanos
+    // Campos que deben ser convertidos a booleanos
     const boolFields = [
         "Cardiopatia", "Diabetes", "EnfCardiovascular", "Hipertension",
         "Cancer", "Tuberculosis", "EnfMental", "EnfInfecciosa",
@@ -258,185 +261,101 @@ function submitFormAsJson() {
         "CardioVascular", "Digestivo", "Genital", "Urinario",
         "MEsqueletico", "Endocrino", "Linfatico", "Nervioso",
         "Cabeza", "Cuello", "Torax", "Abdomen", "Pelvis",
-        "Extremidades", "PresuntivoDiagnosticos", "DefinitivoDiagnosticos",
-        "ConsultaAntecedentesFamiliares.Cardiopatia"
+        "Extremidades"
     ];
 
+    // Procesar campos simples del formulario
     formData.forEach((value, key) => {
         if (intFields.includes(key)) {
-            object[key] = value ? parseInt(value, 10) : null;
+            data[key] = value ? parseInt(value, 10) : null;
         } else if (boolFields.includes(key)) {
-            object[key] = value === "true" || value === "on";
+            data[key] = value === "true" || value === "on" || value === true;
         } else {
-            object[key] = value;
-        }
-
-        // Verificación de campos null
-        if (object[key] === null) {
-            console.log(`Campo ${key} está en null.`);
+            data[key] = value || null;
         }
     });
 
-    // Capturar los diagnósticos
-    const diagnosticos = [];
-    document.querySelectorAll('#diagnosticoTableBody tr').forEach(row => {
+    // Procesar Diagnósticos
+    data.Diagnosticos = Array.from(document.querySelectorAll('#diagnosticoTableBody tr')).map(row => {
         const diagnosticoIdElement = row.querySelector('input[name="Diagnosticos.DiagnosticoId"]');
-        if (diagnosticoIdElement) {
-            const diagnosticoId = parseInt(diagnosticoIdElement.value, 10);
-            const presuntivoElement = row.querySelector('input[name="Diagnosticos.PresuntivoDiagnosticos"]');
-            const definitivoElement = row.querySelector('input[name="Diagnosticos.DefinitivoDiagnosticos"]');
-            const presuntivo = presuntivoElement ? presuntivoElement.checked : false;
-            const definitivo = definitivoElement ? definitivoElement.checked : false;
-            diagnosticos.push({
-                diagnostico_id: diagnosticoId,
-                presuntivo_diagnosticos: presuntivo,
-                definitivo_diagnosticos: definitivo
-            });
+        const presuntivoElement = row.querySelector('input[name="Diagnosticos.PresuntivoDiagnostico"]');
+        const definitivoElement = row.querySelector('input[name="Diagnosticos.DefinitivoDiagnostico"]');
 
-            // Verificación de campos null en diagnósticos
-            if (diagnosticoId === null) {
-                console.log('Campo diagnostico_id está en null.');
-            }
-        }
-    });
-    object["Diagnosticos"] = diagnosticos.length > 0 ? diagnosticos : [];
+        return {
+            diagnostico_id: diagnosticoIdElement ? parseInt(diagnosticoIdElement.value, 10) : null,
+            presuntivo_diagnostico: presuntivoElement ? presuntivoElement.checked : false,
+            definitivo_diagnostico: definitivoElement ? definitivoElement.checked : false
+        };
+    }).filter(item => item.diagnostico_id !== null);
 
-    // Capturar los medicamentos
-    const medicamentos = [];
-    document.querySelectorAll('#medicamentosTableBody tr').forEach(row => {
+    // Procesar Medicamentos
+    data.Medicamentos = Array.from(document.querySelectorAll('#medicamentosTableBody tr')).map(row => {
         const medicamentoIdElement = row.querySelector('input[name="Medicamentos.MedicamentoId"]');
-        if (medicamentoIdElement) {
-            const medicamentoId = parseInt(medicamentoIdElement.value, 10);
-            const cantidadElement = row.querySelector('input[name="Medicamentos.Cantidad"]');
-            const observacionElement = row.querySelector('input[name="Medicamentos.Observacion"]');
-            const cantidad = cantidadElement ? parseInt(cantidadElement.value, 10) : null;
-            const observacion = observacionElement ? observacionElement.value : null;
-            medicamentos.push({
-                medicamento_id: medicamentoId,
-                dosis_medicamento: cantidad,
-                observacion_medicamento: observacion
-            });
+        const dosisElement = row.querySelector('input[name="Medicamentos.Dosis"]');
+        const observacionElement = row.querySelector('input[name="Medicamentos.Observacion"]');
 
-            // Verificación de campos null en medicamentos
-            if (medicamentoId === null) {
-                console.log('Campo medicamento_id está en null.');
-            }
-            if (cantidad === null) {
-                console.log('Campo cantidad en medicamentos está en null.');
-            }
-        }
-    });
-    object["Medicamentos"] = medicamentos.length > 0 ? medicamentos : [];
+        return {
+            medicamento_id: medicamentoIdElement ? parseInt(medicamentoIdElement.value, 10) : null,
+            dosis_medicamento: dosisElement ? dosisElement.value : null,
+            observacion_medicamento: observacionElement ? observacionElement.value : null
+        };
+    }).filter(item => item.medicamento_id !== null);
 
-    // Capturar las imágenes
-    const imagenes = [];
-    document.querySelectorAll('#imagenesTableBody tr').forEach(row => {
+    // Procesar Imágenes
+    data.Imagenes = Array.from(document.querySelectorAll('#imagenesTableBody tr')).map(row => {
         const imagenIdElement = row.querySelector('input[name="Imagenes.ImagenId"]');
-        if (imagenIdElement) {
-            const imagenId = parseInt(imagenIdElement.value, 10);
-            const cantidadElement = row.querySelector('input[name="Imagenes.Cantidad"]');
-            const observacionElement = row.querySelector('input[name="Imagenes.Observacion"]');
-            const cantidad = cantidadElement ? parseInt(cantidadElement.value, 10) : null;
-            const observacion = observacionElement ? observacionElement.value : null;
-            imagenes.push({
-                imagen_id: imagenId,
-                cantidad_imagen: cantidad,
-                observacion_imagen: observacion
-            });
+        const cantidadElement = row.querySelector('input[name="Imagenes.Cantidad"]');
+        const observacionElement = row.querySelector('input[name="Imagenes.Observacion"]');
 
-            // Verificación de campos null en imágenes
-            if (imagenId === null) {
-                console.log('Campo imagen_id está en null.');
-            }
-            if (cantidad === null) {
-                console.log('Campo cantidad en imágenes está en null.');
-            }
-        }
-    });
-    object["Imagenes"] = imagenes.length > 0 ? imagenes : [];
+        return {
+            imagen_id: imagenIdElement ? parseInt(imagenIdElement.value, 10) : null,
+            cantidad_imagen: cantidadElement ? parseInt(cantidadElement.value, 10) : null,
+            observacion_imagen: observacionElement ? observacionElement.value : null
+        };
+    }).filter(item => item.imagen_id !== null);
 
-    // Capturar los laboratorios
-    const laboratorios = [];
-    document.querySelectorAll('#laboratorioTableBody tr').forEach(row => {
+    // Procesar Laboratorios
+    data.Laboratorios = Array.from(document.querySelectorAll('#laboratorioTableBody tr')).map(row => {
         const laboratorioIdElement = row.querySelector('input[name="Laboratorios.LaboratorioId"]');
-        if (laboratorioIdElement) {
-            const laboratorioId = parseInt(laboratorioIdElement.value, 10);
-            const cantidadElement = row.querySelector('input[name="Laboratorios.Cantidad"]');
-            const observacionElement = row.querySelector('input[name="Laboratorios.Observacion"]');
-            const cantidad = cantidadElement ? parseInt(cantidadElement.value, 10) : null;
-            const observacion = observacionElement ? observacionElement.value : null;
-            laboratorios.push({
-                laboratorio_id: laboratorioId,
-                cantidad_laboratorio: cantidad,
-                observacion_laboratorio: observacion
-            });
+        const cantidadElement = row.querySelector('input[name="Laboratorios.Cantidad"]');
+        const observacionElement = row.querySelector('input[name="Laboratorios.Observacion"]');
 
-            // Verificación de campos null en laboratorios
-            if (laboratorioId === null) {
-                console.log('Campo laboratorio_id está en null.');
-            }
-            if (cantidad === null) {
-                console.log('Campo cantidad en laboratorios está en null.');
-            }
-        }
-    });
-    object["Laboratorios"] = laboratorios.length > 0 ? laboratorios : [];
+        return {
+            laboratorio_id: laboratorioIdElement ? parseInt(laboratorioIdElement.value, 10) : null,
+            cantidad_laboratorio: cantidadElement ? parseInt(cantidadElement.value, 10) : null,
+            observacion_laboratorio: observacionElement ? observacionElement.value : null
+        };
+    }).filter(item => item.laboratorio_id !== null);
 
-    // Debugging: Verificar el contenido del objeto antes de enviarlo
-    console.log("Formulario capturado:", object);
+    // Depuración: Verificar el objeto antes de enviarlo
+    console.log("Datos preparados para enviar:", data);
 
-    // Convertir el objeto a JSON y enviarlo
-    const json = JSON.stringify(object);
-    console.log("JSON enviado:", json); // Verificación adicional antes de enviar
-
+    // Enviar los datos al servidor
     fetch(consultaUrl, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: json
+        body: JSON.stringify(data)
     })
         .then(response => {
-            if (response.ok) {
-                return response.json();  // Parsear respuesta JSON
-            } else {
-                return response.text().then(text => { throw new Error(text); });
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Error al crear la consulta');
+                });
             }
+            return response.json();
         })
-        .then(data => {
-            console.log("Respuesta completa del servidor:", data);
+        .then(responseData => {
+            console.log("Respuesta del servidor:", responseData);
 
-            const consultaId = parseInt(data.id, 10);
-            if (isNaN(consultaId) || consultaId <= 0) {
-                console.error(`Received invalid consultaId: ${consultaId} from server`);
+            const consultaId = responseData.id;
+            if (!consultaId) {
                 throw new Error("El ID de la consulta no se recibió correctamente.");
             }
 
-            // Usando la URL generada por @Url.Action
-            var getConsultId = '@Url.Action("GetConsultaById", "Consultatio")';
-            const consultaDetailsUrl = `${getConsultId}/${consultaId}`;
-
-            // Nueva solicitud para obtener los detalles de la consulta
-            return fetch(consultaDetailsUrl, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();  // Parsear respuesta JSON con los detalles de la consulta
-            } else {
-                return response.text().then(text => { throw new Error(text); });
-            }
-        })
-        .then(consulta => {
-            // Mostrar los detalles completos de la consulta en la consola
-            console.log("Detalles completos de la consulta:", consulta);
-
-            // Si quieres redirigir a la página de edición o mostrar los detalles, puedes hacerlo aquí
-            const redirUrl = editarConsultaUrl.replace('__ID__', consulta.ConsultaId);
+            // Redireccionar a la página de detalles o edición de la consulta
+            const redirUrl = editarConsultaUrl.replace('__ID__', consultaId);
             window.location.href = redirUrl;
         })
         .catch(error => {
@@ -444,6 +363,9 @@ function submitFormAsJson() {
             alert(`Ocurrió un error al crear la consulta: ${error.message}`);
         });
 }
+
+
+
 
 
 

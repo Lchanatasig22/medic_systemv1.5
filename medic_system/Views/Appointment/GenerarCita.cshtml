@@ -7,7 +7,7 @@
 
 <h1>Crear Cita</h1>
 <div id="camp">
-  Capo Obligatorio *
+    Capo Obligatorio *
 </div>
 
 <form asp-action="GenerarCita" class="row g-3" method="post" id="citaForm">
@@ -43,9 +43,7 @@
 <div id="formHorasDisponibles" style="display: none;">
     <h2>Horas Disponibles</h2>
     <button type="button" class="btn btn-danger" onclick="cerrarFormularioHoras()">Cerrar</button>
-    <div id="hoursContainer" class="hours-grid">
-      
-    </div>
+    <div id="hoursContainer" class="hours-grid"></div>
 </div>
 
 <!-- Estilos y Scripts -->
@@ -135,8 +133,8 @@
 
         if (fechaCita && medicoId) {
             $.ajax({
-  url: '@Url.Action("ObtenerHorasDisponibles", "Appointment")',          
-      type: 'POST',
+                url: '@Url.Action("ObtenerHorasDisponibles", "Appointment")',
+                type: 'POST',
                 data: {
                     fechaCita: fechaCita,
                     medicoId: medicoId
@@ -155,10 +153,7 @@
         }
     }
 
-  
-
-    function displayAvailableHours(response) {
-        const hours = response.$values; // Accede al array de horas dentro de $values
+    function displayAvailableHours(hours) {
         const container = document.getElementById('hoursContainer');
         container.innerHTML = '';
 
@@ -199,8 +194,6 @@
         }
     }
 
-
-
     function validarCampos() {
         const fecha = document.getElementById('fechaCita').value;
         const hora = document.getElementById('horaCita').value;
@@ -236,7 +229,7 @@
                     showConfirmButton: false,
                     willClose: () => {
                         window.location.href = '@Url.Action("ListarCitas", "Appointment")';
-                      
+
                     }
                 });
             },
