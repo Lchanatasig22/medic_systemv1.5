@@ -31,14 +31,14 @@ builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
 // Registrar IHttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 
-// Registrar el servicio de autenticación
+// Registrar el servicio de autenticación y otros servicios
 builder.Services.AddScoped<AutenticationService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<PatientService>();
 builder.Services.AddScoped<CatalogService>();
 builder.Services.AddScoped<AppointmentService>();
 builder.Services.AddScoped<ConsultationService>();
-builder.Services.AddLogging(); ;
+builder.Services.AddLogging();
 
 // Configurar y habilitar sesiones
 builder.Services.AddSession(options =>
@@ -48,17 +48,31 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true; // Marca la cookie como esencial
 });
 
-
-
-
-
 var app = builder.Build();
+
+// Middleware global de manejo de excepciones
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next.Invoke();
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex, "Unhandled exception occurred.");
+        throw;
+    }
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+}
+else
+{
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();

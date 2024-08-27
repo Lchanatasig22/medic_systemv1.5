@@ -131,8 +131,7 @@
         }
     }
 
-    function displayAvailableHours(response) {
-        const hours = response.$values; // Accede al array de horas dentro de $values
+    function displayAvailableHours(hours) {
         const container = document.getElementById('hoursContainer');
         container.innerHTML = '';
 
@@ -142,7 +141,7 @@
                 card.className = 'hour-card';
 
                 const img = document.createElement('img');
-                img.src = '../images/free-doctor-icon-313-thumb.png';
+                img.src = '/images/free-doctor-icon-313-thumb.png';
 
                 const time = document.createElement('div');
                 time.textContent = hour;
